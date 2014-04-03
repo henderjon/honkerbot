@@ -1,15 +1,37 @@
 <?php
 
+/**
+ * from commandline: `php example/HonkerBot.php`
+ *
+ * this could easily be made to take CLI args vs a config array
+ *
+ */
+
+require "vendor/autoload.php";
+
+$config = array(
+	"password" => "",
+	"username" => "",
+	"nickname" => "",
+	"hostname" => "",
+	"hostport" => "",
+);
+
+//overwrite our examples
+if(file_exists("conf/config.ini")){
+	$config = parse_ini_file("conf/config.ini");
+}
+
 $honker = new HonkerBot\HonkerBot;
 
 //send our creds after the first response from the IRC then remove this event
-$honker->addEvent("|.*|i", function($matches)use($honker){
+$honker->addEvent("|.*|i", function($matches)use($honker, $config){
 	static $joined;
 	if(!$joined){
 		$joined = true;
-		$str  = $honker->pass("password");
-		$str .= $honker->user("honkerbot");
-		$str .= $honker->nick("honkerbot");
+		$str  = $honker->pass($config["password"]);
+		$str .= $honker->user($config["username"]);
+		$str .= $honker->nick($config["nickname"]);
 		return $str;
 	}
 	return null;
@@ -35,7 +57,7 @@ $honker->addEvent("|^PING :(?P<code>.*)$|i", function($matches)use($honker){
 });
 
 //connect
-$honker->connect("irc.ircserver.com", "6667");
+$honker->connect($config["hostname"], $config["hostport"]);
 
 //loop
 $honker->listen();
