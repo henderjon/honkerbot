@@ -1,5 +1,7 @@
 <?php
 
+require_once("tests/bootstrap.php");
+
 use HonkerBot\HonkerBot;
 
 FUnit::test("HonkerBot::construct()", function(){
