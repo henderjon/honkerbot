@@ -18,7 +18,7 @@
 		"php": ">=5.3.0"
 	},
 	"require-dev": {
-		"funkatron/funit" : "0.*"
+		"funkatron/funit" : "dev-master"
 	},
 	"autoload": {
 		"psr-4": {
