@@ -4,7 +4,7 @@ HonkerBot is a simple IRC bot written in PHP.
 
 # Usage
 
-You're best bet is to check the tests to see usage, as I'm awful at
+You're best bet is to check the tests/examples to see usage, as I'm awful at
 documentation.
 
 # Installation
