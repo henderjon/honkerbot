@@ -20,7 +20,7 @@
 	"suggest" : {
 		"psr/log"                   : "1.*",
 		"henderjon/drop"            : "0.1.*",
-		"henderjon/simple_scan_args": "1.*"
+		"henderjon/simple_scan_args": "0.1.*"
 	},
 	"require-dev": {
 		"funkatron/funit" : "dev-master"
