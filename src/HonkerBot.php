@@ -2,7 +2,11 @@
 
 namespace HonkerBot;
 
+use Psr\Log;
+
 class HonkerBot extends Commands {
+
+	use Log\LoggerAwareTrait;
 
 	/**
 	 * our connection
@@ -15,20 +19,32 @@ class HonkerBot extends Commands {
 	protected $events = array();
 
 	/**
-	 * send lines to STDERR?
-	 */
-	public $suppress = false;
-
-	/**
 	 * stream timeout
 	 */
 	const TIMEOUT = 3600;
 
 	/**
+	 * store the IP/Port for logging
+	 */
+	protected $sock;
+
+	/**
+	 * directional constants
+	 */
+	const INBOUND  = "inbound";
+
+	/**
+	 * directional constants
+	 */
+	const OUTBOUND = "outbound";
+
+	/**
 	 * add a default PING/PONG to our bot
 	 * @return
 	 */
-	function __construct(){
+	function __construct(Log\LoggerInterface $logger = null){
+		$this->logger = $logger;
+
 		$this->addEvent("|^PING :(?P<code>.*)$|i", function($matches){
 			return sprintf("PONG :%s\n", $matches["code"]);
 		});
@@ -41,16 +57,16 @@ class HonkerBot extends Commands {
 	 * @return
 	 */
 	function connect( $ip, $port ){
-		try {
-			$errno = $errstr = "";
-			$sock = "tcp://{$ip}:{$port}";
-			$this->handle = stream_socket_client($sock, $errno, $errstr);
-		} catch (Exception $e) {
-			trigger_error($e->getMessage());
+		$errno = $errstr = "";
+		$this->sock = $sock = "tcp://{$ip}:{$port}";
+		$this->handle = stream_socket_client($sock, $errno, $errstr);
+
+		if($errno){
+			throw new HonkerBotException($errstr, $errno);
 		}
 
-		if( !$this->handle ){
-			trigger_error("Connection Error: {$errno} / {$error}");
+		if( $this->handle === false){
+			throw new HonkerBotException("stream_socket_client returned FALSE without an error.");
 		}
 	}
 	/**
@@ -62,7 +78,7 @@ class HonkerBot extends Commands {
 	function write( $handle, $msg ){
 		$msg = rtrim( $msg, "\n" );
 		$len = fwrite( $handle, "{$msg}\n" );
-		if(!$this->suppress) fwrite( STDERR,  ">> {$msg}\n" );
+		$this->logIo($msg, static::OUTBOUND);
 		return $len;
 	}
 
@@ -118,10 +134,23 @@ class HonkerBot extends Commands {
 	function listen(){
 		while( $line = trim( fgets( $this->handle ) ) ){
 			stream_set_timeout( $this->handle, static::TIMEOUT );
-
-			if(!$this->suppress) fwrite(STDERR, "<< {$line}\n");
-
+			$this->logIo($line, static::INBOUND);
 			$this->hook($line);
+		}
+	}
+
+	/**
+	 * log IO using a PSR logger
+	 */
+	function logIo($message, $direction){
+		if($this->logger instanceof Log\LoggerInterface){
+			$this->logger->info($message, [
+				"io.message"   => $message,
+				"io.direction" => $direction,
+				"conn.socket"  => $this->sock,
+				"conn.timeout" => static::TIMEOUT,
+				"events.count" => count($this->events),
+			]);
 		}
 	}
 

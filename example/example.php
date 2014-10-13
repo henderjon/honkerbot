@@ -9,6 +9,8 @@
 
 require "vendor/autoload.php";
 
+require __DIR__ . "/ExampleLogger.php";
+
 $config = array(
 	"password" => "",
 	"username" => "",
@@ -22,7 +24,7 @@ if(file_exists("conf/config.ini")){
 	$config = parse_ini_file("conf/config.ini");
 }
 
-$honker = new HonkerBot\HonkerBot;
+$honker = new HonkerBot\HonkerBot(new ExampleLogger);
 
 //send our creds after the first response from the IRC then remove this event
 $honker->addEvent("|.*|i", function($matches)use($honker, $config){
@@ -33,6 +35,7 @@ $honker->addEvent("|.*|i", function($matches)use($honker, $config){
 		$str .= $honker->user($config["username"]);
 		$str .= $honker->nick($config["nickname"]);
 		return $str;
+
 	}
 	return null;
 });

@@ -1,36 +1,19 @@
-# HonkerBot
+# henderjon/honkerbot
 
 HonkerBot is a simple IRC bot written in PHP.
 
-# Usage
+Peruse the tests or, if present, the examples directory to see usage.
 
-You're best bet is to check the tests/examples to see usage, as I'm awful at
-documentation.
+# References
 
-# Installation
+These are not necessarily supported or implemented. They are here as a reference
+for further reading.
 
-Install the [Packagist archive](https://packagist.org/packages/henderjon/honkerbot)
-using [Composer](http://getcomposer.org/). I will *generally* respect
-[Semantic Versioning](http://semver.org/). Learn about how Composer
-does [versions](https://getcomposer.org/doc/01-basic-usage.md#package-versions).
+  - [RFC 1459](http://www.rfc-editor.org/rfc/rfc1459.txt)
+  - [RFC 2810](http://www.rfc-editor.org/rfc/rfc2810.txt)
 
-*Note the absense of v1.0*
-
-```
-{
-	"require" : {
-		"henderjon/honkerbot": "0.1.*"
-	}
-}
-```
-
-# License
-
-See LICENSE.md for the [BSD-3-Clause](http://opensource.org/licenses/BSD-3-Clause) license.
-
+[![Latest Stable Version](https://poser.pugx.org/henderjon/honkerbot/v/stable.svg)](https://packagist.org/packages/henderjon/honkerbot)
 [![Build Status](https://travis-ci.org/henderjon/honkerbot.svg?branch=master)](https://travis-ci.org/henderjon/honkerbot)
-
-
 
 
 
