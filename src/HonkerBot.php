@@ -3,6 +3,7 @@
 namespace HonkerBot;
 
 use Psr\Log;
+use WM;
 
 class HonkerBot extends Commands implements \Countable {
 
@@ -21,7 +22,7 @@ class HonkerBot extends Commands implements \Countable {
 	/**
 	 * stream timeout
 	 */
-	const TIMEOUT = 3600;
+	protected $timeout = (WM\ONE_MINUTE * 6);
 
 	/**
 	 * store the IP/Port for logging
@@ -133,10 +134,18 @@ class HonkerBot extends Commands implements \Countable {
 	 */
 	function listen(){
 		while( $line = trim( fgets( $this->handle ) ) ){
-			stream_set_timeout( $this->handle, static::TIMEOUT );
+			stream_set_timeout( $this->handle, $this->timeout );
 			$this->logIo($line, static::INBOUND);
 			$this->hook($line);
 		}
+	}
+
+	/**
+	 * set the timeout of each iteration of the loop
+	 * @param int $seconds The number of seconds
+	 */
+	function setTimeout($seconds){
+		$this->timeout = (int)$seconds;
 	}
 
 	/**
@@ -149,7 +158,7 @@ class HonkerBot extends Commands implements \Countable {
 				"io.message"      => $message,
 				"io.direction"    => $direction,
 				"conn.socket"     => $this->sock,
-				"conn.timeout"    => static::TIMEOUT,
+				"conn.timeout"    => $this->timeout,
 				"events.count"    => $this->count(),
 				"events.patterns" => array_keys($this->events),
 			]);
