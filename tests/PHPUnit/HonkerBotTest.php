@@ -2,6 +2,18 @@
 
 use HonkerBot\HonkerBot;
 
+use Psr\Log;
+
+class NoOutPutLogger extends Log\AbstractLogger {
+	protected $context;
+	function log($level, $message, array $context = []){
+		$context["log.level"]   = $level;
+		$context["log.message"] = $message;
+		$this->context = $context;
+	}
+	function getContext(){ return $this->context; }
+}
+
 class HonkerBotTest extends PHPUnit_Framework_TestCase{
 
 	function getInst($handle){
@@ -26,7 +38,7 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 		$bot = new HonkerBot;
 		$handle = fopen("php://memory", "rw+");
 		$text = "This is some sample text.";
-		$bot->write($handle, $text, true);
+		$bot->write($handle, $text);
 
 		rewind($handle);
 		$result = fread($handle, strlen($text));
@@ -46,6 +58,31 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 		$result = fread($handle, strlen($toParse));
 		$expected = "PONG :irc.honkerbot.com";
 		$this->assertEquals($expected, $result);
+
+	}
+
+	function test_logIo(){
+		$handle = fopen("php://memory", "rw+");
+		$bot = $this->getInst($handle);
+
+		$logger = new NoOutPutLogger;
+
+		$bot->setLogger($logger);
+
+		$text = "This is some sample text.";
+		$bot->write($handle, $text, true);
+
+		$expected["log.level"]       = "info";
+		$expected["log.message"]     = "This is some sample text.";
+		$expected["io.timestamp"]    =  date("c (e)");
+		$expected["io.message"]      = "This is some sample text.";
+		$expected["io.direction"]    = $bot::OUTBOUND;
+		$expected["conn.socket"]     = null;
+		$expected["conn.timeout"]    = $bot::TIMEOUT;
+		$expected["events.count"]    = $bot->count();
+		$expected["events.patterns"] = ["|^PING :(?P<code>.*)$|i"];
+
+		$this->assertEquals($expected, $logger->getContext());
 
 	}
 

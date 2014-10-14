@@ -145,6 +145,7 @@ class HonkerBot extends Commands implements \Countable {
 	function logIo($message, $direction){
 		if($this->logger instanceof Log\LoggerInterface){
 			$this->logger->info($message, [
+				"io.timestamp"    => date("c (e)"),
 				"io.message"      => $message,
 				"io.direction"    => $direction,
 				"conn.socket"     => $this->sock,
