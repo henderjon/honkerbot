@@ -22,7 +22,7 @@ class HonkerBot extends Commands implements \Countable {
 	/**
 	 * stream timeout
 	 */
-	protected $timeout = WM\ONE_MINUTE * 6;
+	protected $timeout = 3600;
 
 	/**
 	 * store the IP/Port for logging
@@ -45,6 +45,7 @@ class HonkerBot extends Commands implements \Countable {
 	 */
 	function __construct(Log\LoggerInterface $logger = null){
 		$this->logger = $logger;
+		$this->timeout = (WM\ONE_MINUTE * 6);
 
 		$this->addEvent("|^PING :(?P<code>.*)$|i", function($matches){
 			return sprintf("PONG :%s\n", $matches["code"]);
