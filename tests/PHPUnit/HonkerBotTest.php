@@ -68,6 +68,7 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 		$logger = new NoOutPutLogger;
 
 		$bot->setLogger($logger);
+		$bot->setTimeout(200);
 
 		$text = "This is some sample text.";
 		$bot->write($handle, $text, true);
@@ -78,7 +79,7 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 		$expected["io.message"]      = "This is some sample text.";
 		$expected["io.direction"]    = $bot::OUTBOUND;
 		$expected["conn.socket"]     = null;
-		$expected["conn.timeout"]    = $bot::TIMEOUT;
+		$expected["conn.timeout"]    = 200;
 		$expected["events.count"]    = $bot->count();
 		$expected["events.patterns"] = ["|^PING :(?P<code>.*)$|i"];
 
