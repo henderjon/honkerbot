@@ -4,7 +4,7 @@ namespace HonkerBot;
 
 use Psr\Log;
 
-class HonkerBot extends Commands {
+class HonkerBot extends Commands implements \Countable {
 
 	use Log\LoggerAwareTrait;
 
@@ -145,13 +145,26 @@ class HonkerBot extends Commands {
 	function logIo($message, $direction){
 		if($this->logger instanceof Log\LoggerInterface){
 			$this->logger->info($message, [
-				"io.message"   => $message,
-				"io.direction" => $direction,
-				"conn.socket"  => $this->sock,
-				"conn.timeout" => static::TIMEOUT,
-				"events.count" => count($this->events),
+				"io.message"      => $message,
+				"io.direction"    => $direction,
+				"conn.socket"     => $this->sock,
+				"conn.timeout"    => static::TIMEOUT,
+				"events.count"    => $this->count(),
+				"events.patterns" => array_keys($this->events),
 			]);
 		}
+	}
+
+	/**
+	 * implements \Countable
+	 */
+	function count(){
+		$count = 0;
+		$patterns = array_keys($this->events);
+		foreach($patterns as $pattern){
+			$count += count($this->events[$pattern]);
+		}
+		return $count;
 	}
 
 }

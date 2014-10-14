@@ -4,22 +4,26 @@ use HonkerBot\HonkerBot;
 
 class HonkerBotTest extends PHPUnit_Framework_TestCase{
 
+	function getInst($handle){
+		$bot = new HonkerBot;
+		$reflection = new ReflectionClass($bot);
+		$botHandle = $reflection->getProperty("handle");
+		$botHandle->setAccessible(true);
+		$botHandle->setValue($bot, $handle);
+		return $bot;
+	}
+
 	function test_construct(){
 
-		$bot = new HonkerBot;
-		$bot->suppress = true;
-		$reflection = new ReflectionClass($bot);
-		$events = $reflection->getProperty("events");
-		$events->setAccessible(true);
-		$events = $events->getValue($bot);
+		$handle = fopen("php://memory", "rw+");
+		$bot = $this->getInst($handle);
 
-		$this->assertEquals(1, count($events));
+		$this->assertEquals(1, count($bot));
 
 	}
 
 	function test_write(){
 		$bot = new HonkerBot;
-		$bot->suppress = true;
 		$handle = fopen("php://memory", "rw+");
 		$text = "This is some sample text.";
 		$bot->write($handle, $text, true);
@@ -31,13 +35,8 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 	}
 
 	function test_hook(){
-		$bot = new HonkerBot;
-		$bot->suppress = true;
-		$reflection = new ReflectionClass($bot);
 		$handle = fopen("php://memory", "rw+");
-		$botHandle = $reflection->getProperty("handle");
-		$botHandle->setAccessible(true);
-		$botHandle->setValue($bot, $handle);
+		$bot = $this->getInst($handle);
 
 		$toParse = "PING :irc.honkerbot.com";
 
@@ -51,12 +50,8 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 	}
 
 	function test_add_event(){
-
-		$bot = new HonkerBot;
-		$bot->suppress = true;
-		$reflection = new ReflectionClass($bot);
-		$events = $reflection->getProperty("events");
-		$events->setAccessible(true);
+		$handle = fopen("php://memory", "rw+");
+		$bot = $this->getInst($handle);
 
 		$pattern = "|^PING :(?P<code>.*)$|i";
 
@@ -64,22 +59,13 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 			return "a string";
 		});
 
-		$events = $events->getValue($bot);
-
-		$this->assertEquals(2, count($events[$pattern]));
+		$this->assertEquals(2, count($bot));
 
 	}
 
 	function test_hook_null(){
-		$bot = new HonkerBot;
-		$bot->suppress = true;
-		$reflection = new ReflectionClass($bot);
-		$events = $reflection->getProperty("events");
-		$events->setAccessible(true);
 		$handle = fopen("php://memory", "rw+");
-		$botHandle = $reflection->getProperty("handle");
-		$botHandle->setAccessible(true);
-		$botHandle->setValue($bot, $handle);
+		$bot = $this->getInst($handle);
 
 		$pattern = "|^PING :(?P<code>.*)$|i";
 
@@ -87,13 +73,13 @@ class HonkerBotTest extends PHPUnit_Framework_TestCase{
 			return null;
 		});
 
+		$this->assertEquals(2, count($bot));
+
 		$toParse = "PING :irc.honkerbot.com";
 
 		$bot->hook($toParse);
 
-		$events = $events->getValue($bot);
-
-		$this->assertEquals(1, count($events[$pattern]));
+		$this->assertEquals(1, count($bot));
 
 	}
 }
